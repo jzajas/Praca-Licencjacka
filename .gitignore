@@ -1,0 +1,12 @@
+# Python bytecode files
+__pycache__/
+*.py[cod]
+*$py.class
+
+# PyCharm project files
+.idea/
+
+# Virtual environment folders
+venv/
+.venv/
+venv.bak/
