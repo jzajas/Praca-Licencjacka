@@ -1,4 +1,5 @@
 from customtkinter import *
+from tkinter import messagebox
 from Frames import *
 from Services import *
 
@@ -16,31 +17,24 @@ class App(CTk):
         self.grid_columnconfigure(0, weight=0, minsize=450)
 
         self.url_frame = UrlFrame(master=self)
-        self.url_frame.grid(row=0, column=0, padx=20, pady=30, sticky="nsew")
-
         self.file_frame = FileFrame(master=self)
-        self.file_frame.grid(row=1, column=0, padx=20, pady=30, sticky="nsew")
-
         self.folder_frame = FolderFrame(master=self)
-        self.folder_frame.grid(row=2, column=0, padx=20, pady=30, sticky="nsew")
-
-        # TODO to delete
-        self.new_frame = TestFrame(master=self)
-        self.new_frame.grid(row=0, column=1)
-
         self.switch_var = StringVar(value="on")
         self.mode_switch = CTkSwitch(self, text="Dark / Light Mode Switch", command=self.change_appearance,
                                      variable=self.switch_var, onvalue="light", offvalue="dark")
-        self.mode_switch.grid(row=3, column=0, padx=20, pady=30, sticky="nsew")
-
-        self.middle_frame = MiddleFrame(master=self)
-        self.middle_frame.grid(row=1, column=1, padx=20, pady=30, sticky="nsew")
 
         self.process_button = CTkButton(master=self, width=100, height=30, corner_radius=20, text_color="black",
                                         font=("Arial", 15), text="Process input", command=self.process_input)
-        self.process_button.grid(row=2, column=1, padx=20, pady=30, sticky="nsew")
+        self.clear_button = CTkButton(master=self, width=100, height=30, corner_radius=20, text_color="black",
+                                      font=("Arial", 15), text="Clear all entries", command=self.clear_inputs)
 
-    # TODO add button that clears all fields and inserts base values there
+        self.url_frame.grid(row=0, column=0, columnspan=2, padx=20, pady=30, sticky="nsew")
+        self.file_frame.grid(row=1, column=0, columnspan=2, padx=20, pady=30, sticky="nsew")
+        self.folder_frame.grid(row=2, column=0, columnspan=2, padx=20, pady=30, sticky="nsew")
+        self.mode_switch.grid(row=3, column=0, padx=20, pady=30, sticky="nsew")
+        self.process_button.grid(row=2, column=2, padx=20, pady=30, sticky="nsew")
+        self.clear_button.grid(row=3, column=2, padx=0, pady=0)
+
     def change_appearance(self):
         mode = self.switch_var.get()
         if mode == "dark":
@@ -48,20 +42,33 @@ class App(CTk):
         elif mode == "light":
             set_appearance_mode("light")
 
+    def clear_inputs(self):
+        self.url_frame.entry.delete(0, END)
+        self.file_frame.entry.delete(0, END)
+        self.folder_frame.entry.delete(0, END)
+
+    # TODO insert functions that process inputs
     def process_input(self):
         url_path = self.url_frame.entry.get()
-        print(url_path)
+        file_path = self.file_frame.entry.get()
+        folder_path = self.folder_frame.entry.get()
+        # print(type(url_path))
+        # print(type(file_path))
+        # print(type(folder_path))
+        if url_path != "" and file_path == "" and folder_path == "":
+            process_url(url_path)
+        elif url_path == "" and file_path != "" and folder_path == "":
+            print("asd")
+        elif url_path == "" and file_path == "" and folder_path != "":
+            print("zxc")
+        else:
+            messagebox.showinfo(title="Too many sources provided", message="Please provide only one source")
 
-    # TODO might be useful
+# TODO might be useful
     # if __name__ == '__main__':
     #     root = tk.Tk()
     #     app = Application(root)
     #     app.mainloop()
-
-
-app = App()
-app.mainloop()
-
 # # TODO tabview dobre do pokazywania co jest dobre a co złe
 # TODO Frame dobre do oddzielenia sekcji gdzie są pokazywane wyniki
 # TODO ProgressBarr dobry do pokazywania ile czasu jeszcze przy opcji Folder do przetwarzania
@@ -75,3 +82,6 @@ app.mainloop()
 #
 # button2 = CTkButton(master=tabview.tab("tab 1"))
 # button2.grid()
+
+app = App()
+app.mainloop()
