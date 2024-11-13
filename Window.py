@@ -1,3 +1,8 @@
+# # TODO tabview dobre do pokazywania co jest dobre a co złe
+# TODO Frame dobre do oddzielenia sekcji gdzie są pokazywane wyniki
+# TODO ProgressBarr dobry do pokazywania ile czasu jeszcze przy opcji Folder do przetwarzania
+# TODO Ustawienie co do przetwarzania twarzy
+
 from customtkinter import *
 from tkinter import messagebox
 from Frames import *
@@ -61,6 +66,8 @@ class App(CTk):
             print("asd")
         elif url_path == "" and file_path == "" and folder_path != "":
             print("zxc")
+        elif url_path == "" and file_path == "" and folder_path == "":
+            messagebox.showinfo(title="No sources provided", message="One source must be provided")
         else:
             messagebox.showinfo(title="Too many sources provided", message="Please provide only one source")
 
@@ -69,19 +76,7 @@ class App(CTk):
     #     root = tk.Tk()
     #     app = Application(root)
     #     app.mainloop()
-# # TODO tabview dobre do pokazywania co jest dobre a co złe
-# TODO Frame dobre do oddzielenia sekcji gdzie są pokazywane wyniki
-# TODO ProgressBarr dobry do pokazywania ile czasu jeszcze przy opcji Folder do przetwarzania
-# TODO switch do zmieniania pomiędzy light i dark mode
-# tabview = CTkTabview(master=window)
-# tabview.grid()
-#
-# tabview.add("tab 1")  # add tab at the end
-# tabview.add("tab 2")  # add tab at the end
-# tabview.set("tab 2")  # set currently visible tab
-#
-# button2 = CTkButton(master=tabview.tab("tab 1"))
-# button2.grid()
+
 
 app = App()
 app.mainloop()
