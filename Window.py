@@ -1,12 +1,12 @@
 # # TODO tabview dobre do pokazywania co jest dobre a co złe
-# TODO Frame dobre do oddzielenia sekcji gdzie są pokazywane wyniki
 # TODO ProgressBarr dobry do pokazywania ile czasu jeszcze przy opcji Folder do przetwarzania
-# TODO Ustawienie co do przetwarzania twarzy
+# TODO Ustawienia co do przetwarzania twarzy
 
 from customtkinter import *
 from tkinter import messagebox
 from Frames import *
 from Services import *
+
 
 set_appearance_mode("system")
 set_default_color_theme("green")
@@ -24,6 +24,8 @@ class App(CTk):
         self.url_frame = UrlFrame(master=self)
         self.file_frame = FileFrame(master=self)
         self.folder_frame = FolderFrame(master=self)
+        self.results_frame = ResultsFrame(master=self)
+
         self.switch_var = StringVar(value="on")
         self.mode_switch = CTkSwitch(self, text="Dark / Light Mode Switch", command=self.change_appearance,
                                      variable=self.switch_var, onvalue="light", offvalue="dark")
@@ -36,6 +38,8 @@ class App(CTk):
         self.url_frame.grid(row=0, column=0, columnspan=2, padx=20, pady=30, sticky="nsew")
         self.file_frame.grid(row=1, column=0, columnspan=2, padx=20, pady=30, sticky="nsew")
         self.folder_frame.grid(row=2, column=0, columnspan=2, padx=20, pady=30, sticky="nsew")
+        self.results_frame.grid(row=0, column=3, rowspan=4, padx=20, pady=30, sticky="nsew")
+
         self.mode_switch.grid(row=3, column=0, padx=20, pady=30, sticky="nsew")
         self.process_button.grid(row=2, column=2, padx=20, pady=30, sticky="nsew")
         self.clear_button.grid(row=3, column=2, padx=0, pady=0)
@@ -62,14 +66,17 @@ class App(CTk):
         # print(type(folder_path))
         if url_path != "" and file_path == "" and folder_path == "":
             process_url(url_path)
+            self.results_frame.incorrect_frame.add_result(url_path)
         elif url_path == "" and file_path != "" and folder_path == "":
-            print("asd")
+            print("file_path")
         elif url_path == "" and file_path == "" and folder_path != "":
-            print("zxc")
+            print("folder_path")
         elif url_path == "" and file_path == "" and folder_path == "":
             messagebox.showinfo(title="No sources provided", message="One source must be provided")
         else:
             messagebox.showinfo(title="Too many sources provided", message="Please provide only one source")
+
+#         TODO displaying results
 
 # TODO might be useful
     # if __name__ == '__main__':

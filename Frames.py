@@ -78,26 +78,36 @@ class FolderFrame(CTkFrame):
             self.entry.insert(0, folder)
 
 
-# TODO to delete
-# class TestFrame(CTkFrame):
-#     def __init__(self, master, **kwargs):
-#         super().__init__(master, **kwargs)
-#
-#         self.label = CTkLabel(master=self, text="Folder", width=100, height=30, anchor="e",
-#                               fg_color="transparent", font=("Arial", 20), padx=30, pady=5)
-#         self.entry = CTkEntry(master=self, width=400, height=40, corner_radius=20,
-#                               placeholder_text="Folder Path", font=("Arial", 15))
-#
-#         self.label.grid(row=0, column=0)
-#         self.entry.grid(row=1, column=0)
+class ResultsFrame(CTkFrame):
+    def __init__(self, master, **kwargs):
+        super().__init__(master, **kwargs)
+
+        self.label = CTkLabel(master=self, text="Results", width=200, height=30, anchor="center",
+                              fg_color="transparent", font=("Arial", 20), padx=30, pady=5)
+        self.correct_frame = ResultsDisplayingFrame(master=self, text="Correct", height=400)
+        self.incorrect_frame = ResultsDisplayingFrame(master=self, text="Incorrect", height=400)
+
+        self.correct_frame.grid(row=0, column=0, rowspan=10, padx=20, pady=30, sticky="nsew")
+        self.incorrect_frame.grid(row=0, column=1, rowspan=4, padx=20, pady=30, sticky="nsew")
+        self.label.grid(row=0, column=0)
 
 
-# class MiddleFrame(CTkFrame):
-#     def __init__(self, master, **kwargs):
-#         super().__init__(master, **kwargs)
-#         # TODO add progress bar?
-#
-#         self.button = CTkButton(master=self, width=100, height=30, corner_radius=20, text_color="black",
-#                                 font=("Arial", 15), text="Process input")
-#         self.button.grid(row=3, column=0)
+class ResultsDisplayingFrame(CTkScrollableFrame):
+    row_number = 1
 
+    def __init__(self, master, text, **kwargs):
+        super().__init__(master, **kwargs)
+
+        self.label = CTkLabel(master=self, text=text, width=200, height=30, anchor="center",
+                              fg_color="transparent", font=("Arial", 20), padx=30, pady=5)
+
+        self.label.grid(row=0, column=0)
+
+    # TODO modify this to add entry to frame
+    def add_result(self, text):
+        text_var = StringVar(master=self)
+        text_var.set(text)
+        # TODO remove disabled and increase width
+        entry = CTkEntry(master=self, fg_color="transparent", state="disabled", textvariable=text_var)
+        entry.grid(column=0, row=self.row_number, sticky="w")
+        self.row_number += 1
