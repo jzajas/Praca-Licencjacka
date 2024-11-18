@@ -1,12 +1,12 @@
-# # TODO tabview dobre do pokazywania co jest dobre a co złe
 # TODO ProgressBarr dobry do pokazywania ile czasu jeszcze przy opcji Folder do przetwarzania
+# TODO przetwarzanie File i Folder inputów
 # TODO Ustawienia co do przetwarzania twarzy
+# TODO minmaxowanie ustawień co do wykrywania twarzy
 
 from customtkinter import *
 from tkinter import messagebox
 from Frames import *
 from Services import *
-
 
 set_appearance_mode("system")
 set_default_color_theme("green")
@@ -24,7 +24,7 @@ class App(CTk):
         self.url_frame = UrlFrame(master=self)
         self.file_frame = FileFrame(master=self)
         self.folder_frame = FolderFrame(master=self)
-        self.results_frame = ResultsFrame(master=self)
+        self.results_frame = ResultsFrame(master=self, width=500)
 
         self.switch_var = StringVar(value="on")
         self.mode_switch = CTkSwitch(self, text="Dark / Light Mode Switch", command=self.change_appearance,
@@ -55,28 +55,43 @@ class App(CTk):
         self.url_frame.entry.delete(0, END)
         self.file_frame.entry.delete(0, END)
         self.folder_frame.entry.delete(0, END)
+        self.results_frame.incorrect_frame.delete_entries()
+        self.results_frame.correct_frame.delete_entries()
 
-    # TODO insert functions that process inputs
     def process_input(self):
-        url_path = self.url_frame.entry.get()
-        file_path = self.file_frame.entry.get()
-        folder_path = self.folder_frame.entry.get()
-        # print(type(url_path))
-        # print(type(file_path))
-        # print(type(folder_path))
-        if url_path != "" and file_path == "" and folder_path == "":
-            process_url(url_path)
-            self.results_frame.incorrect_frame.add_result(url_path)
-        elif url_path == "" and file_path != "" and folder_path == "":
-            print("file_path")
-        elif url_path == "" and file_path == "" and folder_path != "":
-            print("folder_path")
-        elif url_path == "" and file_path == "" and folder_path == "":
-            messagebox.showinfo(title="No sources provided", message="One source must be provided")
-        else:
-            messagebox.showinfo(title="Too many sources provided", message="Please provide only one source")
+        url_path = self.url_frame.entry.get().strip()
+        file_path = self.file_frame.entry.get().strip()
+        folder_path = self.folder_frame.entry.get().strip()
 
-#         TODO displaying results
+        try:
+            if url_path != "" and file_path == "" and folder_path == "":
+                path = url_path
+                face_quality = process_url(path)
+            elif url_path == "" and file_path != "" and folder_path == "":
+                path = file_path
+                # TODO change file processing
+                # face_quality = process_url(path)
+            elif url_path == "" and file_path == "" and folder_path != "":
+                path = folder_path
+                # TODO change file processing
+                # face_quality = process_url(path)
+            elif url_path == "" and file_path == "" and folder_path == "":
+                messagebox.showinfo(title="No sources provided", message="One source must be provided")
+
+            else:
+                messagebox.showinfo(title="Too many sources provided", message="Please provide only one source")
+
+            self.results_frame.correct_frame.add_result(path)
+
+        except ConnectionError as e:
+            self.results_frame.incorrect_frame.add_result(path, e)
+
+        except ValueError as e:
+            self.results_frame.incorrect_frame.add_result(path, e)
+
+        except TypeError as e:
+            self.results_frame.incorrect_frame.add_result(path, "Incorrect face position")
+
 
 # TODO might be useful
     # if __name__ == '__main__':
