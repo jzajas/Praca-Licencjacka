@@ -1,5 +1,5 @@
 from customtkinter import *
-from Services import *
+from InputProcessing import *
 from tkinter import filedialog
 import pyperclip
 
@@ -46,8 +46,9 @@ class FileFrame(CTkFrame):
     def select_file(self):
         self.entry.delete(0, END)
         self.entry.insert(0, "Folder Path")
-        file = filedialog.askopenfile(title="Select File",
-                                      filetypes=[("Images", "*.png"), ("Images", "*.jpg")])
+        file = filedialog.askopenfilename(title="Select File",
+                                                parent=self,
+                                                filetypes=[("Images", "*.png"), ("Images", "*.jpg")])
         if file:
             self.entry.delete(0, END)
             self.entry.insert(0, file)
@@ -120,6 +121,7 @@ class ResultsDisplayingFrame(CTkScrollableFrame):
                 widget.destroy()
 
 
+# TODO spytać promotora czy kod z StackOverflow może być
 class CreateToolTip(object):
     """
     create a tooltip for a given widget

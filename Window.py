@@ -6,7 +6,7 @@
 from customtkinter import *
 from tkinter import messagebox
 from Frames import *
-from Services import *
+from InputProcessing import *
 
 set_appearance_mode("system")
 set_default_color_theme("green")
@@ -48,6 +48,7 @@ class App(CTk):
         mode = self.switch_var.get()
         if mode == "dark":
             set_appearance_mode("dark")
+
         elif mode == "light":
             set_appearance_mode("light")
 
@@ -69,8 +70,7 @@ class App(CTk):
                 face_quality = process_url(path)
             elif url_path == "" and file_path != "" and folder_path == "":
                 path = file_path
-                # TODO change file processing
-                # face_quality = process_url(path)
+                face_quality = process_file(path)
             elif url_path == "" and file_path == "" and folder_path != "":
                 path = folder_path
                 # TODO change file processing

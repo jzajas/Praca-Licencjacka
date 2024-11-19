@@ -1,17 +1,20 @@
-# TODO input processing (URL, File, Folder) (separately)
-# TODO Img processing (separate file?)
-import requests
 from deepface import DeepFace
 import mediapipe as mp
 import cv2
-import numpy as np
-
 import matplotlib.pyplot as plt
+import numpy as np
 import math
 
 
 HEIGHT = 480
 WIDTH = 480
+
+
+def show_face(face, title=None):
+    plt.imshow(face)
+    plt.title(title)
+    plt.axis('off')
+    plt.show()
 
 
 # TODO might be useless
@@ -23,38 +26,6 @@ def resize_and_show(image):
         img = cv2.resize(image, (math.floor(w / (h / HEIGHT)), HEIGHT))
 
     cv2.imshow(winname="face after resizing", mat=img)
-
-
-def show_face(face, title=None):
-    plt.imshow(face)
-    plt.title(title)
-    plt.axis('off')
-    plt.show()
-
-
-def process_url(url):
-    response = requests.get(url)
-    if response.status_code == 200:
-        image_array = np.asarray(bytearray(response.content), dtype=np.uint8)
-        image = cv2.imdecode(image_array, cv2.IMREAD_COLOR)
-
-        if image is None:
-            raise ValueError("No image behind the url")
-        else:
-            image = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
-            face = detect_face(image)
-
-            if face is not None:
-                print(f"face detected: {type(face)}")
-                landmarks_present = draw_mesh(face)
-                if landmarks_present:
-                    return True
-                else:
-                    raise ValueError("Face in incorrect position")
-            else:
-                raise ValueError("Face not found")
-    else:
-        raise ConnectionError("Problem with url")
 
 
 # retinaface / mtcnn for quality
