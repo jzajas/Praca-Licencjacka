@@ -10,3 +10,6 @@ __pycache__/
 venv/
 .venv/
 venv.bak/
+
+# URL text file
+URL.txt
