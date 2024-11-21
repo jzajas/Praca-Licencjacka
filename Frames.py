@@ -1,7 +1,9 @@
 from customtkinter import *
-from InputProcessing import *
 from tkinter import filedialog
 import pyperclip
+
+FILETYPES = [("Images", "*.png"), ("Images", "*.jpg"), ("Images", "*.jpeg"), ("Images", "*.raw"), ("Images", "*.tif"),
+             ("Images", "*.tiff"), ("Images", "*.bmp")]
 
 
 class UrlFrame(CTkFrame):
@@ -45,10 +47,9 @@ class FileFrame(CTkFrame):
 
     def select_file(self):
         self.entry.delete(0, END)
-        self.entry.insert(0, "Folder Path")
         file = filedialog.askopenfilename(title="Select File",
                                                 parent=self,
-                                                filetypes=[("Images", "*.png"), ("Images", "*.jpg")])
+                                                filetypes=FILETYPES)
         if file:
             self.entry.delete(0, END)
             self.entry.insert(0, file)
@@ -72,7 +73,6 @@ class FolderFrame(CTkFrame):
 
     def select_folder(self):
         self.entry.delete(0, END)
-        self.entry.insert(0, "Folder Path")
         folder = filedialog.askdirectory(title="Select Folder")
         if folder:
             self.entry.delete(0, END)
@@ -127,8 +127,8 @@ class CreateToolTip(object):
     create a tooltip for a given widget
     """
     def __init__(self, widget, text='widget info'):
-        self.waittime = 500     #miliseconds
-        self.wraplength = 180   #pixels
+        self.wait_time = 500
+        self.wrap_length = 180
         self.widget = widget
         self.text = text
         self.widget.bind("<Enter>", self.enter)
@@ -146,7 +146,7 @@ class CreateToolTip(object):
 
     def schedule(self):
         self.unschedule()
-        self.id = self.widget.after(self.waittime, self.showtip)
+        self.id = self.widget.after(self.wait_time, self.showtip)
 
     def unschedule(self):
         id = self.id
@@ -164,11 +164,11 @@ class CreateToolTip(object):
         # Leaves only the label and removes the app window
         self.tw.wm_overrideredirect(True)
         self.tw.wm_geometry("+%d+%d" % (x, y))
-        label = CTkLabel(self.tw, text=self.text, justify='left', wraplength=self.wraplength)
+        label = CTkLabel(self.tw, text=self.text, justify='left', wraplength=self.wrap_length)
         label.pack(ipadx=1)
 
     def hidetip(self):
         tw = self.tw
-        self.tw= None
+        self.tw = None
         if tw:
             tw.destroy()

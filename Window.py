@@ -3,11 +3,12 @@
 # TODO Ustawienia co do przetwarzania twarzy
 # TODO minmaxowanie ustawień co do wykrywania twarzy
 
-from customtkinter import *
 from tkinter import messagebox
 from Frames import *
 from InputProcessing import *
+import re
 
+EXTENSIONS =["png", "jpg", "jpeg", "raw", "tif", "tiff", "bmp"]
 set_appearance_mode("system")
 set_default_color_theme("green")
 
@@ -63,25 +64,37 @@ class App(CTk):
         url_path = self.url_frame.entry.get().strip()
         file_path = self.file_frame.entry.get().strip()
         folder_path = self.folder_frame.entry.get().strip()
-
         try:
             if url_path != "" and file_path == "" and folder_path == "":
                 path = url_path
                 face_quality = process_url(path)
+                self.determine_results(path, face_quality)
             elif url_path == "" and file_path != "" and folder_path == "":
                 path = file_path
                 face_quality = process_file(path)
+                self.determine_results(path, face_quality)
+#           TODO change folder processing
             elif url_path == "" and file_path == "" and folder_path != "":
-                path = folder_path
-                # TODO change file processing
-                # face_quality = process_url(path)
+                main_path = folder_path
+                files = os.listdir(main_path)
+                all_files = [file for file in files if os.path.isfile(main_path + '/' + file)]
+                print(all_files)
+                for file in all_files:
+                    print(file)
+                    path = main_path + '/' + file
+                    file_extension = file.split(".")[-1]
+                    if file_extension in EXTENSIONS:
+                        print(file_extension)
+                        face_quality = process_file(path)
+                        self.determine_results(path, face_quality)
+                    else:
+                        self.results_frame.incorrect_frame.add_result(path, "Incorrect file extension")
+
             elif url_path == "" and file_path == "" and folder_path == "":
                 messagebox.showinfo(title="No sources provided", message="One source must be provided")
 
             else:
                 messagebox.showinfo(title="Too many sources provided", message="Please provide only one source")
-
-            self.results_frame.correct_frame.add_result(path)
 
         except ConnectionError as e:
             self.results_frame.incorrect_frame.add_result(path, e)
@@ -91,6 +104,10 @@ class App(CTk):
 
         except TypeError as e:
             self.results_frame.incorrect_frame.add_result(path, "Incorrect face position")
+
+    def determine_results(self, path, quality):
+        if quality:
+            self.results_frame.correct_frame.add_result(path)
 
 
 # TODO might be useful

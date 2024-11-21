@@ -4,6 +4,7 @@ from ImageProcessing import *
 import requests
 import numpy as np
 import cv2
+import os
 
 
 def process_url(url):
@@ -23,6 +24,13 @@ def process_file(file_path):
 
     good_face_quality = process_image(image)
     return good_face_quality
+
+
+def process_folder(dir_path):
+    files = os.listdir(dir_path)
+    all_files = [f for f in files if os.path.isfile(dir_path+'/'+f)]
+
+    print(all_files)
 
 
 def process_image(image):
