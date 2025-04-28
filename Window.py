@@ -1,14 +1,14 @@
-# TODO ProgressBarr dobry do pokazywania ile czasu jeszcze przy opcji Folder do przetwarzania
-# TODO przetwarzanie File i Folder inputów
 # TODO Ustawienia co do przetwarzania twarzy
 # TODO minmaxowanie ustawień co do wykrywania twarzy
+# TODO ilość wykrywanych twarzy to parametr o przekazywania
+# TODO jaki model do detekcji twarzy powinioen zostać użyty to też parametr do przekazania
 
+from pathlib import Path
 from tkinter import messagebox
 from Frames import *
 from InputProcessing import *
 import re
 
-EXTENSIONS =["png", "jpg", "jpeg", "raw", "tif", "tiff", "bmp"]
 set_appearance_mode("system")
 set_default_color_theme("green")
 
@@ -72,26 +72,18 @@ class App(CTk):
             elif url_path == "" and file_path != "" and folder_path == "":
                 path = file_path
                 face_quality = process_file(path)
-                self.determine_results(path, face_quality)
-#           TODO change folder processing
+                self.determine_results(self.extract_name(path), face_quality)
             elif url_path == "" and file_path == "" and folder_path != "":
-                main_path = folder_path
-                files = os.listdir(main_path)
-                all_files = [file for file in files if os.path.isfile(main_path + '/' + file)]
-                print(all_files)
-                for file in all_files:
-                    print(file)
-                    path = main_path + '/' + file
-                    file_extension = file.split(".")[-1]
-                    if file_extension in EXTENSIONS:
-                        print(file_extension)
-                        face_quality = process_file(path)
-                        self.determine_results(path, face_quality)
+                results = process_folder(folder_path)
+                for path, result in results:
+                    path = self.extract_name(path)
+                    if result is True or result is False:
+                        self.determine_results(path, result)
                     else:
-                        self.results_frame.incorrect_frame.add_result(path, "Incorrect file extension")
+                        self.results_frame.incorrect_frame.add_result(path, result)
 
             elif url_path == "" and file_path == "" and folder_path == "":
-                messagebox.showinfo(title="No sources provided", message="One source must be provided")
+                messagebox.showinfo(title="No source provided", message="One source must be provided")
 
             else:
                 messagebox.showinfo(title="Too many sources provided", message="Please provide only one source")
@@ -100,7 +92,8 @@ class App(CTk):
             self.results_frame.incorrect_frame.add_result(path, e)
 
         except ValueError as e:
-            self.results_frame.incorrect_frame.add_result(path, e)
+            message, path = e.args
+            self.results_frame.incorrect_frame.add_result(self.extract_name(path), message)
 
         except TypeError as e:
             self.results_frame.incorrect_frame.add_result(path, "Incorrect face position")
@@ -108,6 +101,9 @@ class App(CTk):
     def determine_results(self, path, quality):
         if quality:
             self.results_frame.correct_frame.add_result(path)
+
+    def extract_name(self, path):
+        return Path(path).name
 
 
 # TODO might be useful
