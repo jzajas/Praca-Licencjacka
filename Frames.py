@@ -3,7 +3,7 @@ from tkinter import filedialog
 import pyperclip
 
 FILETYPES = [("Images", "*.png"), ("Images", "*.jpg"), ("Images", "*.jpeg"), ("Images", "*.raw"), ("Images", "*.tif"),
-             ("Images", "*.tiff"), ("Images", "*.bmp")]
+             ("Images", "*.tiff"), ("Images", "*.bmp"), ("Images", "*.webp")]
 
 
 class UrlFrame(CTkFrame):
@@ -17,16 +17,23 @@ class UrlFrame(CTkFrame):
                               font=("Arial", 15))
         self.button = CTkButton(master=self, width=135, height=30, corner_radius=20, text_color="black",
                                 fg_color="white", font=("Arial", 15), text="Paste Url", command=self.paste_url)
+        self.clear_button = CTkButton(master=self, width=30, height=30, text="✕", corner_radius=20,
+                                      text_color="black", fg_color="red", font=("Arial", 15),
+                                      command=self.clear_entry)
 
         self.label.grid(row=0, column=0)
         self.entry.grid(row=1, column=0, padx=3)
         self.button.grid(row=1, column=1,  padx=3)
+        self.clear_button.grid(row=1, column=2, padx=3)
 
     def paste_url(self):
         url = pyperclip.paste()
         if isinstance(url, str):
             self.entry.delete(0, END)
             self.entry.insert(0, url)
+
+    def clear_entry(self):
+        self.entry.delete(0, 'end')
 
 
 class FileFrame(CTkFrame):
@@ -40,10 +47,14 @@ class FileFrame(CTkFrame):
                               font=("Arial", 15))
         self.button = CTkButton(master=self, width=135, height=30, corner_radius=20, text_color="black",
                                 fg_color="white", font=("Arial", 15), text="Browse Files", command=self.select_file)
+        self.clear_button = CTkButton(master=self, width=30, height=30, text="✕", corner_radius=20,
+                                      text_color="black", fg_color="red", font=("Arial", 15),
+                                      command=self.clear_entry)
 
         self.label.grid(row=0, column=0)
         self.entry.grid(row=1, column=0, padx=3)
-        self.button.grid(row=1, column=1,  padx=3)
+        self.button.grid(row=1, column=1, padx=3)
+        self.clear_button.grid(row=1, column=2, padx=3)
 
     def select_file(self):
         self.entry.delete(0, END)
@@ -53,6 +64,9 @@ class FileFrame(CTkFrame):
         if file:
             self.entry.delete(0, END)
             self.entry.insert(0, file)
+
+    def clear_entry(self):
+        self.entry.delete(0, 'end')
 
 
 class FolderFrame(CTkFrame):
@@ -66,10 +80,15 @@ class FolderFrame(CTkFrame):
                               font=("Arial", 15))
         self.button = CTkButton(master=self, width=100, height=30, corner_radius=20, text_color="black",
                                 fg_color="white", font=("Arial", 15), text="Browse Folders", command=self.select_folder)
+        self.clear_button = CTkButton(master=self, width=30, height=30, text="✕", corner_radius=20,
+                                      text_color="black", fg_color="red", font=("Arial", 15),
+                                      command=self.clear_entry)
 
         self.label.grid(row=0, column=0)
         self.entry.grid(row=1, column=0,  padx=3)
         self.button.grid(row=1, column=1, padx=3)
+        self.clear_button.grid(row=1, column=2, padx=3)
+
 
     def select_folder(self):
         self.entry.delete(0, END)
@@ -77,6 +96,9 @@ class FolderFrame(CTkFrame):
         if folder:
             self.entry.delete(0, END)
             self.entry.insert(0, folder)
+
+    def clear_entry(self):
+        self.entry.delete(0, 'end')
 
 
 class ResultsFrame(CTkFrame):
