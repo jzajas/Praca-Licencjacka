@@ -1,10 +1,8 @@
-# TODO every function has some overlaps (move it to separate function)
 # TODO Remove image showing
 from ImageProcessing import *
 import requests
 import numpy as np
 import cv2
-import os
 
 
 def process_url(url):
@@ -22,30 +20,26 @@ def process_url(url):
 def process_file(file_path):
     image = cv2.imread(file_path)
 
-    good_face_quality = process_image(image)
-    return good_face_quality
-
-
-def process_folder(dir_path):
-    files = os.listdir(dir_path)
-    all_files = [f for f in files if os.path.isfile(dir_path+'/'+f)]
-
-    print(all_files)
+    face_quality = process_image(image)
+    return face_quality
 
 
 def process_image(image):
+    print("In process image")
     if image is None:
-        raise ValueError("No image behind the url")
+        raise ValueError("Could not find image behind provided source")
     else:
-        image = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
-        face = detect_face(image)
+        try:
+            # image = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
+            face = detect_face(image)
 
-        if face is not None:
-            print(f"face detected: {type(face)}")
-            landmarks_present = draw_mesh(face)
-            if landmarks_present:
-                return True
+            if face is not None:
+                landmarks_present = draw_mesh(face)
+                if landmarks_present:
+                    return True
+                else:
+                    raise ValueError("Face in incorrect position")
             else:
-                raise ValueError("Face in incorrect position")
-        else:
-            raise ValueError("Face not found")
+                raise ValueError("Face not found")
+        except TypeError as e:
+            return False

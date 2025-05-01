@@ -8,7 +8,7 @@ from Frames import *
 from InputProcessing import *
 import re
 
-EXTENSIONS =["png", "jpg", "jpeg", "raw", "tif", "tiff", "bmp"]
+EXTENSIONS =["png", "jpg", "jpeg", "raw", "tif", "tiff", "bmp", "webp"]
 set_appearance_mode("system")
 set_default_color_theme("green")
 
@@ -77,10 +77,11 @@ class App(CTk):
             elif url_path == "" and file_path == "" and folder_path != "":
                 main_path = folder_path
                 files = os.listdir(main_path)
-                all_files = [file for file in files if os.path.isfile(main_path + '/' + file)]
+                # all_files = [file for file in files if os.path.isfile(main_path + '/' + file)]
+                all_files = files
                 print(all_files)
                 for file in all_files:
-                    print(file)
+                    print("Processing: " + file)
                     path = main_path + '/' + file
                     file_extension = file.split(".")[-1]
                     if file_extension in EXTENSIONS:
@@ -88,7 +89,7 @@ class App(CTk):
                         face_quality = process_file(path)
                         self.determine_results(path, face_quality)
                     else:
-                        self.results_frame.incorrect_frame.add_result(path, "Incorrect file extension")
+                        self.results_frame.incorrect_frame.add_result(self.extract_name(path), "Incorrect file extension")
 
             elif url_path == "" and file_path == "" and folder_path == "":
                 messagebox.showinfo(title="No sources provided", message="One source must be provided")
@@ -100,14 +101,18 @@ class App(CTk):
             self.results_frame.incorrect_frame.add_result(path, e)
 
         except ValueError as e:
-            self.results_frame.incorrect_frame.add_result(path, e)
+            self.results_frame.incorrect_frame.add_result(self.extract_name(path), e)
 
         except TypeError as e:
-            self.results_frame.incorrect_frame.add_result(path, "Incorrect face position")
+            self.results_frame.incorrect_frame.add_result(self.extract_name(path), "Incorrect face position")
 
     def determine_results(self, path, quality):
         if quality:
-            self.results_frame.correct_frame.add_result(path)
+            self.results_frame.correct_frame.add_result(self.extract_name(path))
+        else:
+            self.results_frame.incorrect_frame.add_result(self.extract_name(path), "Low Auality")
+    def extract_name(self, path):
+        return os.path.basename(path)
 
 
 # TODO might be useful

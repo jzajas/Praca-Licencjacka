@@ -10,45 +10,46 @@ HEIGHT = 480
 WIDTH = 480
 
 
-def show_face(face, title=None):
-    plt.imshow(face)
-    plt.title(title)
-    plt.axis('off')
-    plt.show()
+# def show_face(face, title=None):
+#     plt.imshow(face)
+#     plt.title(title)
+#     plt.axis('off')
+#     plt.show()
+#
+#
+# # TODO might be useless
+# def resize_and_show(image):
+#     h, w = image.shape[:2]
+#     if h < w:
+#         img = cv2.resize(image, (WIDTH, math.floor(h / (w / WIDTH))))
+#     else:
+#         img = cv2.resize(image, (math.floor(w / (h / HEIGHT)), HEIGHT))
+#
+#     cv2.imshow(winname="face after resizing", mat=img)
 
 
-# TODO might be useless
-def resize_and_show(image):
-    h, w = image.shape[:2]
-    if h < w:
-        img = cv2.resize(image, (WIDTH, math.floor(h / (w / WIDTH))))
-    else:
-        img = cv2.resize(image, (math.floor(w / (h / HEIGHT)), HEIGHT))
-
-    cv2.imshow(winname="face after resizing", mat=img)
-
-
-# retinaface / mtcnn for quality
-# opencv / ssd for speed
 # TODO Add clause for not detecting face and error handling
 def detect_face(image):
-    print("looking for face")
-    face_objs = DeepFace.extract_faces(
-        img_path=image,
-        detector_backend="retinaface",
-        enforce_detection=False,
-        align=True,
-    )
-    print(face_objs[0]["confidence"])
-    if face_objs[0]["confidence"] > 0:
-
-        show_face(face_objs[0]["face"])
-
-        return face_objs[0]["face"]
+    print("In detect face")
+    try:
+        face_objs = DeepFace.extract_faces(
+            img_path=image,
+            # detector_backend="retinaface",
+            detector_backend="ssd",
+            enforce_detection=False,
+            align=True,
+        )
+        if face_objs[0]["confidence"] > 0:
+            # show_face(face_objs[0]["face"])
+            return face_objs[0]["face"]
+        else:
+            raise TypeError
+    except Exception as e:
+        raise TypeError(e)
 
 
 def draw_mesh(face_image):
-    print("drawing mesh")
+    print("In draw mesh")
     # cv2.imshow(winname="face before resizing", mat=face_image)
     # resize_and_show(face_image)
 
@@ -68,10 +69,10 @@ def draw_mesh(face_image):
 
         results = face_mesh.process(face_image)
         # Draw face landmarks of each face.
-        print(f'Processing Face landmarks')
+        # print(f'Processing Face landmarks')
         annotated_image = face_image.copy()
         if results:
-            print(type(results.multi_face_landmarks))
+            # print(type(results.multi_face_landmarks))
             for face_landmarks in results.multi_face_landmarks:
                 # TODO these landmarks will most likely change
                 # TODO move it to different function
@@ -98,5 +99,5 @@ def draw_mesh(face_image):
                     .get_default_face_mesh_iris_connections_style())
 
             # resize_and_show(annotated_image)
-            show_face(annotated_image)
+            # show_face(annotated_image)
             return True
