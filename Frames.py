@@ -3,7 +3,7 @@ from tkinter import filedialog
 import pyperclip
 
 FILETYPES = [("Images", "*.png"), ("Images", "*.jpg"), ("Images", "*.jpeg"), ("Images", "*.raw"), ("Images", "*.tif"),
-             ("Images", "*.tiff"), ("Images", "*.bmp"), ("Images", "*.webp"), ("Images", "*.avif")]
+             ("Images", "*.tiff"), ("Images", "*.bmp")]
 
 
 class UrlFrame(CTkFrame):
@@ -115,6 +115,7 @@ class ResultsDisplayingFrame(CTkScrollableFrame):
             entry_tool_tip = CreateToolTip(entry, error)
 
     def delete_entries(self):
+        """Delete only the Entry widgets from the frame."""
         for widget in self.winfo_children():
             if isinstance(widget, CTkEntry):
                 widget.destroy()
