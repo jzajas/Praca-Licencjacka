@@ -13,18 +13,20 @@ class UrlFrame(CTkFrame):
         self.label = CTkLabel(master=self, text="URL", width=100, height=30, anchor="e",
                               text_color="#0080ff", fg_color="transparent", font=("Arial", 20), padx=30, pady=5)
         self.entry = CTkEntry(master=self, width=400, height=40, corner_radius=20, text_color="black",
-                              fg_color="white", placeholder_text_color="black",
-                              font=("Arial", 15))
+                              fg_color="white", placeholder_text_color="black", font=("Arial", 15))
         self.button = CTkButton(master=self, width=135, height=30, corner_radius=20, text_color="black",
                                 fg_color="white", font=("Arial", 15), text="Paste Url", command=self.paste_url)
         self.clear_button = CTkButton(master=self, width=30, height=30, text="✕", corner_radius=20,
-                                      text_color="black", fg_color="red", font=("Arial", 15),
+                                      text_color="black", fg_color="#bf1515", font=("Arial", 15),
                                       command=self.clear_entry)
+        self.status_label = CTkLabel(master=self, text="", width=1, height=20, anchor="w", text_color="white",
+                                     fg_color="transparent", font=("Arial", 14))
 
         self.label.grid(row=0, column=0)
         self.entry.grid(row=1, column=0, padx=3)
         self.button.grid(row=1, column=1,  padx=3)
         self.clear_button.grid(row=1, column=2, padx=3)
+        self.status_label.grid(row=2, column=0, columnspan=3, sticky="w", padx=30, pady=(5, 0))
 
     def paste_url(self):
         url = pyperclip.paste()
@@ -34,6 +36,12 @@ class UrlFrame(CTkFrame):
 
     def clear_entry(self):
         self.entry.delete(0, 'end')
+
+    def show_label(self, text):
+        self.status_label.configure(text=text)
+
+    def hide_label(self):
+        self.status_label.configure(text="")
 
 
 class FileFrame(CTkFrame):
@@ -48,13 +56,16 @@ class FileFrame(CTkFrame):
         self.button = CTkButton(master=self, width=135, height=30, corner_radius=20, text_color="black",
                                 fg_color="white", font=("Arial", 15), text="Browse Files", command=self.select_file)
         self.clear_button = CTkButton(master=self, width=30, height=30, text="✕", corner_radius=20,
-                                      text_color="black", fg_color="red", font=("Arial", 15),
+                                      text_color="black", fg_color="#bf1515", font=("Arial", 15),
                                       command=self.clear_entry)
+        self.status_label = CTkLabel(master=self, text="", width=1, height=20, anchor="w", text_color="white",
+                                     fg_color="transparent", font=("Arial", 14))
 
         self.label.grid(row=0, column=0)
         self.entry.grid(row=1, column=0, padx=3)
         self.button.grid(row=1, column=1, padx=3)
         self.clear_button.grid(row=1, column=2, padx=3)
+        self.status_label.grid(row=2, column=0, columnspan=3, sticky="w", padx=30, pady=(5, 0))
 
     def select_file(self):
         self.entry.delete(0, END)
@@ -67,6 +78,12 @@ class FileFrame(CTkFrame):
 
     def clear_entry(self):
         self.entry.delete(0, 'end')
+
+    def show_label(self, text):
+        self.status_label.configure(text=text)
+
+    def hide_label(self):
+        self.status_label.configure(text="")
 
 
 class FolderFrame(CTkFrame):
@@ -81,13 +98,17 @@ class FolderFrame(CTkFrame):
         self.button = CTkButton(master=self, width=100, height=30, corner_radius=20, text_color="black",
                                 fg_color="white", font=("Arial", 15), text="Browse Folders", command=self.select_folder)
         self.clear_button = CTkButton(master=self, width=30, height=30, text="✕", corner_radius=20,
-                                      text_color="black", fg_color="red", font=("Arial", 15),
+                                      text_color="black", fg_color="#bf1515", font=("Arial", 15),
                                       command=self.clear_entry)
+        self.status_label = CTkLabel(master=self, text="", width=1, height=20, anchor="w", text_color="white",
+                                     fg_color="transparent", font=("Arial", 14))
 
         self.label.grid(row=0, column=0)
         self.entry.grid(row=1, column=0,  padx=3)
         self.button.grid(row=1, column=1, padx=3)
         self.clear_button.grid(row=1, column=2, padx=3)
+        self.status_label.grid(row=2, column=0, columnspan=3, sticky="w", padx=30, pady=(5, 0))
+
 
 
     def select_folder(self):
@@ -99,6 +120,12 @@ class FolderFrame(CTkFrame):
 
     def clear_entry(self):
         self.entry.delete(0, 'end')
+
+    def show_label(self, text):
+        self.status_label.configure(text=text)
+
+    def hide_label(self):
+        self.status_label.configure(text="")
 
 
 class ResultsFrame(CTkFrame):
@@ -143,7 +170,32 @@ class ResultsDisplayingFrame(CTkScrollableFrame):
                 widget.destroy()
 
 
-# TODO spytać promotora czy kod z StackOverflow może być
+class DetectorSettingsFrame(CTkFrame):
+    def __init__(self, master=None, **kwargs):
+        super().__init__(master, **kwargs)
+
+        self.detector_label = CTkLabel(master=self, width=100, height=30, corner_radius=20, text_color="lightgrey",
+                                       font=("Arial", 15), text="Select Detector:")
+        self.detector_option = CTkOptionMenu(master=self, width=100, height=30, corner_radius=20, text_color="black",
+                                             font=("Arial", 15), values=["ssd", "retinaface"])
+        self.detector_option.set("ssd")
+
+        # self.number_label = CTkLabel(master=self, width=100, height=30, corner_radius=20, text_color="lightgrey",
+        #                              font=("Arial", 15), text="Number of Faces:")
+        # self.number_option = CTkOptionMenu(master=self, width=100, height=30, corner_radius=20, text_color="black",
+        #                                    font=("Arial", 15), values=[str(i) for i in range(1, 11)])
+        # self.number_option.set("1")
+
+        self.detector_label.grid(row=0, column=0, pady=(15, 5))
+        self.detector_option.grid(row=1, column=0, pady=(0,30))
+        # self.number_label.grid(row=2, column=0, pady=(30,0))
+        # self.number_option.grid(row=3, column=0, pady=(5, 15))
+
+    def get_selected_detector(self):
+        return self.detector_option.get()
+
+
+# TODO usunąć i zastąpic to czym innym
 class CreateToolTip(object):
     """
     create a tooltip for a given widget

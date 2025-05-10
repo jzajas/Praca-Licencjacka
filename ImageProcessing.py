@@ -1,23 +1,38 @@
 from deepface import DeepFace
 import mediapipe as mp
-import cv2
 import matplotlib.pyplot as plt
 import numpy as np
+import cv2
 import math
 
 
 HEIGHT = 480
 WIDTH = 480
 
+NOSE = 1
+LEFT_CHEEK = 234
+RIGHT_CHEEK = 454
+RIGHT_EAR = 356
+LEFT_EAR = 127
+RIGHT_EYE = 130
+LEFT_EYE = 359
 
-# def show_face(face, title=None):
-#     plt.imshow(face)
-#     plt.title(title)
-#     plt.axis('off')
-#     plt.show()
-#
-#
-# # TODO might be useless
+NOSE_EYE_THRESHOLD = 0.05
+CHEEK_THRESHOLD = 0.1
+EAR_THRESHOLD = 0.1
+
+# Left eye: 33
+# Right eye: 263
+
+
+def show_face(face, title=None):
+    plt.imshow(face)
+    plt.title(title)
+    plt.axis('off')
+    plt.show()
+
+
+# TODO might be useless
 # def resize_and_show(image):
 #     h, w = image.shape[:2]
 #     if h < w:
@@ -28,24 +43,33 @@ WIDTH = 480
 #     cv2.imshow(winname="face after resizing", mat=img)
 
 
-# TODO Add clause for not detecting face and error handling
-def detect_face(image):
-    print("In detect face")
+def detect_face(image, detector):
+    print("In detect face, chosen detector:" + detector)
     try:
         face_objs = DeepFace.extract_faces(
             img_path=image,
-            # detector_backend="retinaface",
-            detector_backend="ssd",
+            detector_backend=detector,
             enforce_detection=False,
             align=True,
         )
-        if face_objs[0]["confidence"] > 0:
-            # show_face(face_objs[0]["face"])
+
+        # print(len(face_objs))
+        # print(face_objs[0]["confidence"])
+        # print(face_objs)
+
+        if len(face_objs) > 1:
+            raise ValueError("Too many faces detected on picture")
+
+        if face_objs[0]["confidence"] > 0.5:
             return face_objs[0]["face"]
         else:
-            raise TypeError
-    except Exception as e:
+            raise ValueError("No face detected")
+    except TypeError as e:
         raise TypeError(e)
+    except ValueError as e:
+        raise ValueError(e)
+    except Exception as e:
+        raise ValueError(e)
 
 
 def draw_mesh(face_image):
@@ -68,36 +92,86 @@ def draw_mesh(face_image):
             face_image = (face_image * 255).astype(np.uint8)
 
         results = face_mesh.process(face_image)
-        # Draw face landmarks of each face.
-        # print(f'Processing Face landmarks')
-        annotated_image = face_image.copy()
         if results:
-            # print(type(results.multi_face_landmarks))
-            for face_landmarks in results.multi_face_landmarks:
-                # TODO these landmarks will most likely change
-                # TODO move it to different function
-                mp_drawing.draw_landmarks(
-                    image=annotated_image,
-                    landmark_list=face_landmarks,
-                    connections=mp_face_mesh.FACEMESH_TESSELATION,
-                    landmark_drawing_spec=None,
-                    connection_drawing_spec=mp_drawing_styles
-                    .get_default_face_mesh_tesselation_style())
-                mp_drawing.draw_landmarks(
-                    image=annotated_image,
-                    landmark_list=face_landmarks,
-                    connections=mp_face_mesh.FACEMESH_CONTOURS,
-                    landmark_drawing_spec=None,
-                    connection_drawing_spec=mp_drawing_styles
-                    .get_default_face_mesh_contours_style())
-                mp_drawing.draw_landmarks(
-                    image=annotated_image,
-                    landmark_list=face_landmarks,
-                    connections=mp_face_mesh.FACEMESH_IRISES,
-                    landmark_drawing_spec=None,
-                    connection_drawing_spec=mp_drawing_styles
-                    .get_default_face_mesh_iris_connections_style())
+            face_landmarks = results.multi_face_landmarks[0]
+
+            # for face_landmarks in results.multi_face_landmarks:
+            #     print(is_face_facing_camera(face_image, face_landmarks))
 
             # resize_and_show(annotated_image)
             # show_face(annotated_image)
-            return True
+            return is_face_facing_camera(face_image, face_landmarks)
+
+
+# def is_face_facing_camera(height, width, face_landmarks):
+def is_face_facing_camera(face_image, face_landmarks):
+    height, width, _ = face_image.shape
+
+    nose = face_landmarks.landmark[NOSE]
+    right_cheek = face_landmarks.landmark[RIGHT_CHEEK]
+    left_cheek = face_landmarks.landmark[LEFT_CHEEK]
+    right_ear = face_landmarks.landmark[RIGHT_EAR]
+    left_ear = face_landmarks.landmark[LEFT_EAR]
+    right_eye = face_landmarks.landmark[RIGHT_EYE]
+    left_eye = face_landmarks.landmark[LEFT_EYE]
+
+    # nose_tip_coords = (int(nose.x * width), int(nose.y * height))
+    # right_eye_coords = (int(right_eye.x * width), int(right_eye.y * height))
+    # left_eye_coords = (int(left_eye.x * width), int(left_eye.y * height))
+    # right_ear_coords = (int(right_ear.x * width), int(right_ear.y * height))
+    # left_ear_coords = (int(left_ear.x * width), int(left_ear.y * height))
+
+    # 1. Eye-ear ratio
+    # eye_distance = abs(left_eye.x - right_eye.x)
+    # ear_distance = abs(left_ear.x - right_ear.x)
+    # eye_ear_ratio = eye_distance / ear_distance if ear_distance > 0 else 0
+
+    # # 2. Nose position relative to face center
+    # face_center_x = (left_ear.x + right_ear.x) / 2
+    # nose_offset = abs(nose.x - face_center_x)
+    #
+    # # 3. Nose between eyes (horizontally)
+    # # nose_between_eyes = left_eye.x > nose.x > right_eye.x
+    # eye_center_x = (left_eye.x + right_eye.x) / 2
+    # nose_offset = abs(nose.x - eye_center_x)
+    #
+    # # 4. Face width symmetry (cheeks)
+    # cheek_diff = abs((right_cheek.x - nose.x) - (nose.x - left_cheek.x))
+
+    # 1. Nose between eyes (symmetry around nose)
+
+    eye_center = (left_eye.x + right_eye.x) / 2
+    nose_eye_offset = abs(nose.x - eye_center)
+
+    # 2. Cheek-to-nose symmetry
+    cheek_symmetry = abs((right_cheek.x - nose.x) - (nose.x - left_cheek.x))
+
+    # 3. Ear height alignment
+    ear_diff = abs(left_ear.y - right_ear.y)
+
+    is_facing = (
+        nose_eye_offset < NOSE_EYE_THRESHOLD and
+        cheek_symmetry < CHEEK_THRESHOLD and
+        ear_diff < EAR_THRESHOLD
+    )
+
+    print(f"En Face: {is_facing}")
+
+    # # Draw landmarks on face image
+    # cv2.circle(face_image, (int(right_eye.x * width), int(right_eye.y * height)), 2, (0, 255, 255), -1)
+    # cv2.circle(face_image, (int(left_eye.x * width), int(left_eye.y * height)), 2, (0, 255, 255), -1)
+    # cv2.circle(face_image, (int(nose.x * width), int(nose.y * height)), 2, (0, 0, 255), -1)
+    # cv2.circle(face_image, (int(right_ear.x * width), int(right_ear.y * height)), 2, (255, 0, 255), -1)
+    # cv2.circle(face_image, (int(left_ear.x * width), int(left_ear.y * height)), 2, (255, 0, 255), -1)
+    #
+    # # Convert face image from BGR to RGB for display
+    # face_image_rgb = cv2.cvtColor(face_image, cv2.COLOR_BGR2RGB)
+    #
+    # # Display the image with landmarks
+    # plt.imshow(face_image_rgb)
+    # plt.title(f"Final")
+    # plt.axis('off')
+    # plt.show()
+
+    return is_facing
+
