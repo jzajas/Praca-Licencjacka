@@ -1,3 +1,4 @@
+import threading
 from tkinter import messagebox
 from Frames import *
 from InputProcessing import *
@@ -31,9 +32,8 @@ class App(CTk):
         self.results_frame = ResultsFrame(master=self, width=475)
         self.settings_frame = DetectorSettingsFrame(master=self, fg_color="transparent")
 
-        self.switch_var = StringVar(value="on")
         self.process_button = CTkButton(master=self, width=150, height=45, corner_radius=20, text_color="black",
-                                        font=("Arial", 15), text="Process input", command=self.process_input)
+                                        font=("Arial", 15), text="Process input", command=self.start_processing)
         self.clear_button = CTkButton(master=self, width=100, height=30, corner_radius=20, text_color="black",
                                       font=("Arial", 15), text="Clear all results", command=self.clear_inputs)
 
@@ -44,7 +44,10 @@ class App(CTk):
         self.results_frame.grid(row=0, column=3, rowspan=4,columnspan=2, padx=20, pady=30, sticky="nsew")
 
         self.process_button.grid(row=2, column=2, padx=20, pady=30)
-        self.clear_button.grid(row=3, column=2, padx=0, pady=0)
+        self.clear_button.grid(row=4, column=3, padx=(75,0), pady=0)
+
+    def start_processing(self):
+        threading.Thread(target=self.process_input).start()
 
     def process_input(self):
         url_path = self.url_frame.entry.get().strip()
@@ -53,6 +56,7 @@ class App(CTk):
         detector = self.settings_frame.get_selected_detector()
         options = self.settings_frame.get_options()
         self.validate_options(options)
+        self.disable_processing()
         self.show_status(url_path, file_path, folder_path)
         try:
             if url_path != "" and file_path == "" and folder_path == "":
@@ -78,17 +82,11 @@ class App(CTk):
                             face_quality = process_file(path, detector, options)
                             self.determine_results(path, face_quality, detector)
                         except ValueError as e:
-                            self.results_frame.add_result_negative(
-                                self.extract_name(path), detector, e
-                            )
+                            self.after(0, lambda p=path, d=detector, msg=e: self.results_frame.add_result_negative(self.extract_name(p), d, msg))
                         except TypeError:
-                            self.results_frame.add_result_negative(
-                                self.extract_name(path), detector, TYPE_ERROR_MESSAGE
-                            )
+                            self.after(0, lambda p=path, d=detector, msg=TYPE_ERROR_MESSAGE: self.results_frame.add_result_negative(self.extract_name(p), d, msg))
                     else:
-                        self.results_frame.add_result_negative(
-                            self.extract_name(path), detector, INCORRECT_FILE_EXTENSION_MESSAGE
-                        )
+                        self.after(0, lambda p=path, d=detector, msg=INCORRECT_FILE_EXTENSION_MESSAGE: self.results_frame.add_result_negative(self.extract_name(p), d, msg))
 
             elif url_path == "" and file_path == "" and folder_path == "":
                 messagebox.showinfo(title="No sources provided", message="One source must be provided")
@@ -97,20 +95,21 @@ class App(CTk):
                 messagebox.showinfo(title="Too many sources provided", message="Please provide only one source")
 
         except ConnectionError as e:
-            self.results_frame.add_result_negative(path, detector, e)
+            self.after(0, lambda p=path, d=detector, msg=e: self.results_frame.add_result_negative(self.extract_name(p), d, msg))
         except ValueError as e:
-            self.results_frame.add_result_negative(self.extract_name(path), detector, e)
+            self.after(0, lambda p=path, d=detector, msg=e: self.results_frame.add_result_negative(self.extract_name(p), d, msg))
         except TypeError:
-            self.results_frame.add_result_negative(self.extract_name(path), detector, TYPE_ERROR_MESSAGE)
+            self.after(0, lambda p=path, d=detector, msg=TYPE_ERROR_MESSAGE: self.results_frame.add_result_negative(self.extract_name(p), d, msg))
 
         finally:
             self.hide_status()
+            self.enable_processing()
 
     def determine_results(self, path, quality, detector):
         if quality:
-            self.results_frame.add_result_positive(self.extract_name(path), detector)
+            self.after(0, lambda p=path, d=detector: self.results_frame.add_result_positive(self.extract_name(p), d))
         else:
-            self.results_frame.add_result_negative(self.extract_name(path), detector, "Low Quality")
+            self.after(0, lambda p=path, d=detector, msg="Low Quality": self.results_frame.add_result_negative(self.extract_name(p), d, msg))
 
     def clear_inputs(self):
         self.results_frame.delete_entries()
@@ -147,12 +146,17 @@ class App(CTk):
         except ValueError:
             messagebox.showinfo(title="Invalid value", message="Please provide valid value for one of the options")
 
+    def disable_processing(self):
+        self.process_button.configure(state="disabled")
+        self.clear_button.configure(state="disabled")
+        self.clear_button.configure(corner_radius=20)
+        self.clear_button.update_idletasks()
 
-# TODO might be useful
-# if __name__ == '__main__':
-#     root = tk.Tk()
-#     app = Application(root)
-#     app.mainloop()
+    def enable_processing(self):
+        self.process_button.configure(state="normal")
+        self.clear_button.configure(state="normal")
+        self.clear_button.configure(corner_radius=20)
+        self.clear_button.update_idletasks()
 
 
 app = App()

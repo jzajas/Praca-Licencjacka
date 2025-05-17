@@ -131,9 +131,6 @@ class ResultsFrame(CTkScrollableFrame):
 
     def __init__(self, master, **kwargs):
         super().__init__(master, **kwargs)
-        # self.display_frame = ResultsDisplayingFrame(master=self, text="Results", height=400, width=500)
-        #
-        # self.display_frame.grid(row=0, column=0, rowspan=10, padx=20, pady=30, sticky="nsew")
         self.label = CTkLabel(master=self, text="Results", width=400, height=30, anchor="center",
                               fg_color="transparent", font=("Arial", 20), padx=30, pady=5)
 
@@ -153,7 +150,7 @@ class ResultsFrame(CTkScrollableFrame):
         textbox.insert("end", ", Correct", "correct_tag")
         textbox.insert("end", f", {detector}")
 
-        textbox.tag_config("correct_tag", foreground="green")
+        textbox.tag_config("correct_tag", foreground="#35c211")
         textbox.configure(state="disabled")
         textbox.grid(column=0, row=self.row_number, sticky="w")
         self.row_number += 1
@@ -172,48 +169,7 @@ class ResultsFrame(CTkScrollableFrame):
 
     def delete_entries(self):
         for widget in self.winfo_children():
-            if isinstance(widget, CTkEntry):
-                widget.destroy()
-
-
-class ResultsDisplayingFrame(CTkScrollableFrame):
-    row_number = 1
-
-    def __init__(self, master, text, **kwargs):
-        super().__init__(master, **kwargs)
-
-        self.label = CTkLabel(master=self, text=text, width=400, height=30, anchor="center",
-                              fg_color="transparent", font=("Arial", 20), padx=30, pady=5)
-
-        self.label.grid(row=0, column=0)
-
-    def add_result_positive(self, name, detector):
-        textbox = CTkTextbox(master=self, width=475, height=40, font=("Arial", 15), wrap="none")
-
-        textbox.insert("end", f"{name}")
-        textbox.insert("end", ", Correct", "correct_tag")
-        textbox.insert("end", f", {detector}")
-
-        textbox.tag_config("correct_tag", foreground="green")
-        textbox.configure(state="disabled")
-        textbox.grid(column=0, row=self.row_number, sticky="w")
-        self.row_number += 1
-
-    def add_result_negative(self, name, detector, reason):
-        textbox = CTkTextbox(master=self, width=475, height=40, font=("Arial", 15), wrap="none")
-
-        textbox.insert("end", f"{name}")
-        textbox.insert("end", ", Incorrect", "incorrect_tag")
-        textbox.insert("end", f", {detector}, {reason}")
-
-        textbox.tag_config("incorrect_tag", foreground="red")
-        textbox.configure(state="disabled")
-        textbox.grid(column=0, row=self.row_number, sticky="w")
-        self.row_number += 1
-
-    def delete_entries(self):
-        for widget in self.winfo_children():
-            if isinstance(widget, CTkEntry):
+            if isinstance(widget, CTkEntry) or isinstance(widget, CTkTextbox):
                 widget.destroy()
 
 

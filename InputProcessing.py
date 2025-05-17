@@ -28,12 +28,10 @@ def process_file(file_path, detector, options):
 
 
 def process_image(image, detector, options):
-    print("In process image")
     if image is None:
         raise ValueError("Could not find image behind provided source")
     else:
         try:
-            # image = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
             face = detect_face(image, detector)
             if face is not None:
                 landmarks_present = draw_mesh(image, options)
