@@ -172,6 +172,9 @@ class ResultsFrame(CTkScrollableFrame):
             if isinstance(widget, CTkEntry) or isinstance(widget, CTkTextbox):
                 widget.destroy()
 
+        self._parent_canvas.yview_moveto(0)
+        self.update_idletasks()
+
 
 class DetectorSettingsFrame(CTkFrame):
     def __init__(self, master=None, **kwargs):

@@ -70,7 +70,7 @@ class App(CTk):
                 face_quality = process_file(path, detector, options)
                 self.determine_results(path, face_quality, detector)
             elif url_path == "" and file_path == "" and folder_path != "":
-                self.results_frame.add_entry(f"Folder {self.extract_name(folder_path)} results:")
+                self.results_frame.add_entry(f"Folder '{self.extract_name(folder_path)}' results:")
                 main_path = folder_path
                 files = os.listdir(main_path)
                 all_files = files
@@ -114,6 +114,7 @@ class App(CTk):
     def clear_inputs(self):
         self.results_frame.delete_entries()
         self.hide_status()
+        self.update_idletasks()
 
     def extract_name(self, path):
         return Path(path).name
