@@ -24,7 +24,7 @@ class UrlFrame(CTkFrame):
 
         self.label.grid(row=0, column=0)
         self.entry.grid(row=1, column=0, padx=3)
-        self.button.grid(row=1, column=1,  padx=3)
+        self.button.grid(row=1, column=1, padx=3)
         self.clear_button.grid(row=1, column=2, padx=3)
         self.status_label.grid(row=2, column=0, columnspan=3, sticky="w", padx=30, pady=(5, 0))
 
@@ -70,8 +70,8 @@ class FileFrame(CTkFrame):
     def select_file(self):
         self.entry.delete(0, END)
         file = filedialog.askopenfilename(title="Select File",
-                                                parent=self,
-                                                filetypes=FILETYPES)
+                                          parent=self,
+                                          filetypes=FILETYPES)
         if file:
             self.entry.delete(0, END)
             self.entry.insert(0, file)
@@ -104,12 +104,10 @@ class FolderFrame(CTkFrame):
                                      fg_color="transparent", font=("Arial", 14))
 
         self.label.grid(row=0, column=0)
-        self.entry.grid(row=1, column=0,  padx=3)
+        self.entry.grid(row=1, column=0, padx=3)
         self.button.grid(row=1, column=1, padx=3)
         self.clear_button.grid(row=1, column=2, padx=3)
         self.status_label.grid(row=2, column=0, columnspan=3, sticky="w", padx=30, pady=(5, 0))
-
-
 
     def select_folder(self):
         self.entry.delete(0, END)
@@ -128,18 +126,54 @@ class FolderFrame(CTkFrame):
         self.status_label.configure(text="")
 
 
-class ResultsFrame(CTkFrame):
+class ResultsFrame(CTkScrollableFrame):
+    row_number = 1
+
     def __init__(self, master, **kwargs):
         super().__init__(master, **kwargs)
-
-        self.label = CTkLabel(master=self, text="Results", width=200, height=30, anchor="center",
+        # self.display_frame = ResultsDisplayingFrame(master=self, text="Results", height=400, width=500)
+        #
+        # self.display_frame.grid(row=0, column=0, rowspan=10, padx=20, pady=30, sticky="nsew")
+        self.label = CTkLabel(master=self, text="Results", width=400, height=30, anchor="center",
                               fg_color="transparent", font=("Arial", 20), padx=30, pady=5)
-        self.correct_frame = ResultsDisplayingFrame(master=self, text="Correct", height=400, width=230)
-        self.incorrect_frame = ResultsDisplayingFrame(master=self, text="Incorrect", height=400, width=230)
 
-        self.correct_frame.grid(row=0, column=0, rowspan=10, padx=20, pady=30, sticky="nsew")
-        self.incorrect_frame.grid(row=0, column=1, rowspan=4, padx=20, pady=30, sticky="nsew")
         self.label.grid(row=0, column=0)
+
+    def add_entry(self, processing_type):
+        text_var = StringVar(master=self)
+        text_var.set(processing_type)
+        entry = CTkEntry(master=self, width=300, fg_color="transparent", textvariable=text_var, font=("Arial", 15))
+        entry.grid(column=0, row=self.row_number, sticky="w")
+        self.row_number += 1
+
+    def add_result_positive(self, name, detector):
+        textbox = CTkTextbox(master=self, width=475, height=40, font=("Arial", 15), wrap="none")
+
+        textbox.insert("end", f"{name}")
+        textbox.insert("end", ", Correct", "correct_tag")
+        textbox.insert("end", f", {detector}")
+
+        textbox.tag_config("correct_tag", foreground="green")
+        textbox.configure(state="disabled")
+        textbox.grid(column=0, row=self.row_number, sticky="w")
+        self.row_number += 1
+
+    def add_result_negative(self, name, detector, reason):
+        textbox = CTkTextbox(master=self, width=475, height=40, font=("Arial", 15), wrap="none")
+
+        textbox.insert("end", f"{name}")
+        textbox.insert("end", ", Incorrect", "incorrect_tag")
+        textbox.insert("end", f", {detector}, {reason}")
+
+        textbox.tag_config("incorrect_tag", foreground="red")
+        textbox.configure(state="disabled")
+        textbox.grid(column=0, row=self.row_number, sticky="w")
+        self.row_number += 1
+
+    def delete_entries(self):
+        for widget in self.winfo_children():
+            if isinstance(widget, CTkEntry):
+                widget.destroy()
 
 
 class ResultsDisplayingFrame(CTkScrollableFrame):
@@ -148,23 +182,36 @@ class ResultsDisplayingFrame(CTkScrollableFrame):
     def __init__(self, master, text, **kwargs):
         super().__init__(master, **kwargs)
 
-        self.label = CTkLabel(master=self, text=text, width=200, height=30, anchor="center",
+        self.label = CTkLabel(master=self, text=text, width=400, height=30, anchor="center",
                               fg_color="transparent", font=("Arial", 20), padx=30, pady=5)
 
         self.label.grid(row=0, column=0)
 
-    def add_result(self, entry_text, error=None):
-        text_var = StringVar(master=self)
-        text_var.set(entry_text)
-        entry = CTkEntry(master=self, width=200, fg_color="transparent", textvariable=text_var, font=("Arial", 15))
-        entry.grid(column=0, row=self.row_number, sticky="w")
+    def add_result_positive(self, name, detector):
+        textbox = CTkTextbox(master=self, width=475, height=40, font=("Arial", 15), wrap="none")
+
+        textbox.insert("end", f"{name}")
+        textbox.insert("end", ", Correct", "correct_tag")
+        textbox.insert("end", f", {detector}")
+
+        textbox.tag_config("correct_tag", foreground="green")
+        textbox.configure(state="disabled")
+        textbox.grid(column=0, row=self.row_number, sticky="w")
         self.row_number += 1
 
-        if error is not None:
-            entry_tool_tip = CreateToolTip(entry, error)
+    def add_result_negative(self, name, detector, reason):
+        textbox = CTkTextbox(master=self, width=475, height=40, font=("Arial", 15), wrap="none")
+
+        textbox.insert("end", f"{name}")
+        textbox.insert("end", ", Incorrect", "incorrect_tag")
+        textbox.insert("end", f", {detector}, {reason}")
+
+        textbox.tag_config("incorrect_tag", foreground="red")
+        textbox.configure(state="disabled")
+        textbox.grid(column=0, row=self.row_number, sticky="w")
+        self.row_number += 1
 
     def delete_entries(self):
-        """Delete only the Entry widgets from the frame."""
         for widget in self.winfo_children():
             if isinstance(widget, CTkEntry):
                 widget.destroy()
@@ -176,73 +223,40 @@ class DetectorSettingsFrame(CTkFrame):
 
         self.detector_label = CTkLabel(master=self, width=100, height=30, corner_radius=20, text_color="lightgrey",
                                        font=("Arial", 15), text="Select Detector:")
-        self.detector_option = CTkOptionMenu(master=self, width=100, height=30, corner_radius=20, text_color="black",
+        self.detector_option = CTkOptionMenu(master=self, width=125, height=30, corner_radius=20, text_color="black",
                                              font=("Arial", 15), values=["ssd", "retinaface"])
         self.detector_option.set("ssd")
+        self.nose_position_label = CTkLabel(master=self, width=100, height=30, corner_radius=20, text_color="white",
+                                            font=("Arial", 15), text="Nose position offset (0-1)")
+        self.symmetry_label = CTkLabel(master=self, width=100, height=30, corner_radius=20, text_color="white",
+                                       font=("Arial", 15), text="Symmetry (0-1)")
+        self.ear_height_diff_label = CTkLabel(master=self, width=100, height=30, corner_radius=20, text_color="white",
+                                              font=("Arial", 15), text="Ear Height Difference (0-1)")
+        self.nose_position_entry = CTkEntry(master=self, width=50, height=20, corner_radius=20, text_color="black",
+                                            fg_color="white", placeholder_text_color="black", font=("Arial", 15))
+        self.symmetry_entry = CTkEntry(master=self, width=50, height=20, corner_radius=20, text_color="black",
+                                       fg_color="white", placeholder_text_color="black", font=("Arial", 15))
+        self.ear_height_diff_entry = CTkEntry(master=self, width=50, height=20, corner_radius=20, text_color="black",
+                                              fg_color="white", placeholder_text_color="black", font=("Arial", 15))
 
-        # self.number_label = CTkLabel(master=self, width=100, height=30, corner_radius=20, text_color="lightgrey",
-        #                              font=("Arial", 15), text="Number of Faces:")
-        # self.number_option = CTkOptionMenu(master=self, width=100, height=30, corner_radius=20, text_color="black",
-        #                                    font=("Arial", 15), values=[str(i) for i in range(1, 11)])
-        # self.number_option.set("1")
+        self.nose_position_entry.insert(0, "0.05")
+        self.symmetry_entry.insert(0, "0.1")
+        self.ear_height_diff_entry.insert(0, "0.03")
 
-        self.detector_label.grid(row=0, column=0, pady=(15, 5))
-        self.detector_option.grid(row=1, column=0, pady=(0,30))
-        # self.number_label.grid(row=2, column=0, pady=(30,0))
-        # self.number_option.grid(row=3, column=0, pady=(5, 15))
+        self.detector_label.grid(row=0, column=0, pady=(20, 30))
+        self.detector_option.grid(row=0, column=1, pady=(20, 30))
+        self.nose_position_label.grid(row=1, column=0, pady=(5, 5))
+        self.nose_position_entry.grid(row=1, column=1, pady=(5, 5))
+        self.symmetry_label.grid(row=2, column=0, pady=(5, 5))
+        self.symmetry_entry.grid(row=2, column=1, pady=(5, 5))
+        self.ear_height_diff_label.grid(row=3, column=0, pady=(5, 5))
+        self.ear_height_diff_entry.grid(row=3, column=1, pady=(5, 5))
 
     def get_selected_detector(self):
         return self.detector_option.get()
 
-
-# TODO usunąć i zastąpic to czym innym
-class CreateToolTip(object):
-    """
-    create a tooltip for a given widget
-    """
-    def __init__(self, widget, text='widget info'):
-        self.wait_time = 500
-        self.wrap_length = 180
-        self.widget = widget
-        self.text = text
-        self.widget.bind("<Enter>", self.enter)
-        self.widget.bind("<Leave>", self.leave)
-        self.widget.bind("<ButtonPress>", self.leave)
-        self.id = None
-        self.tw = None
-
-    def enter(self, event=None):
-        self.schedule()
-
-    def leave(self, event=None):
-        self.unschedule()
-        self.hidetip()
-
-    def schedule(self):
-        self.unschedule()
-        self.id = self.widget.after(self.wait_time, self.showtip)
-
-    def unschedule(self):
-        id = self.id
-        self.id = None
-        if id:
-            self.widget.after_cancel(id)
-
-    def showtip(self, event=None):
-        x = y = 0
-        x, y, cx, cy = self.widget.bbox("insert")
-        x += self.widget.winfo_rootx() + 25
-        y += self.widget.winfo_rooty() + 20
-        # creates a toplevel window
-        self.tw = CTkToplevel(self.widget)
-        # Leaves only the label and removes the app window
-        self.tw.wm_overrideredirect(True)
-        self.tw.wm_geometry("+%d+%d" % (x, y))
-        label = CTkLabel(self.tw, text=self.text, justify='left', wraplength=self.wrap_length)
-        label.pack(ipadx=1)
-
-    def hidetip(self):
-        tw = self.tw
-        self.tw = None
-        if tw:
-            tw.destroy()
+    def get_options(self):
+        nose_position = self.nose_position_entry.get()
+        symmetry = self.symmetry_entry.get()
+        ear_high_diff = self.ear_height_diff_entry.get()
+        return [nose_position, symmetry, ear_high_diff]

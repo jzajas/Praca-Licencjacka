@@ -17,13 +17,6 @@ LEFT_EAR = 127
 RIGHT_EYE = 130
 LEFT_EYE = 359
 
-NOSE_EYE_THRESHOLD = 0.05
-CHEEK_THRESHOLD = 0.1
-EAR_THRESHOLD = 0.1
-
-# Left eye: 33
-# Right eye: 263
-
 
 def show_face(face, title=None):
     plt.imshow(face)
@@ -58,7 +51,7 @@ def detect_face(image, detector):
         # print(face_objs)
 
         if len(face_objs) > 1:
-            raise ValueError("Too many faces detected on picture")
+            raise ValueError("Too many faces detected")
 
         if face_objs[0]["confidence"] > 0.5:
             return face_objs[0]["face"]
@@ -72,7 +65,7 @@ def detect_face(image, detector):
         raise ValueError(e)
 
 
-def draw_mesh(face_image):
+def draw_mesh(face_image, options):
     print("In draw mesh")
     # cv2.imshow(winname="face before resizing", mat=face_image)
     # resize_and_show(face_image)
@@ -100,11 +93,11 @@ def draw_mesh(face_image):
 
             # resize_and_show(annotated_image)
             # show_face(annotated_image)
-            return is_face_facing_camera(face_image, face_landmarks)
+            return is_face_facing_camera(face_image, face_landmarks, options)
 
 
 # def is_face_facing_camera(height, width, face_landmarks):
-def is_face_facing_camera(face_image, face_landmarks):
+def is_face_facing_camera(face_image, face_landmarks, options):
     height, width, _ = face_image.shape
 
     nose = face_landmarks.landmark[NOSE]
@@ -139,23 +132,29 @@ def is_face_facing_camera(face_image, face_landmarks):
     # cheek_diff = abs((right_cheek.x - nose.x) - (nose.x - left_cheek.x))
 
     # 1. Nose between eyes (symmetry around nose)
-
     eye_center = (left_eye.x + right_eye.x) / 2
     nose_eye_offset = abs(nose.x - eye_center)
 
-    # 2. Cheek-to-nose symmetry
+    # TODO to zamiwnić na coś innego?
+    # 2. nose symmetry
     cheek_symmetry = abs((right_cheek.x - nose.x) - (nose.x - left_cheek.x))
 
     # 3. Ear height alignment
     ear_diff = abs(left_ear.y - right_ear.y)
 
-    is_facing = (
-        nose_eye_offset < NOSE_EYE_THRESHOLD and
-        cheek_symmetry < CHEEK_THRESHOLD and
-        ear_diff < EAR_THRESHOLD
-    )
+    nose_eye_threshold = float(options[0])
+    cheek_threshold = float(options[1])
+    ear_high_difference_threshold = float(options[2])
 
-    print(f"En Face: {is_facing}")
+    print(nose_eye_offset)
+    print(cheek_symmetry)
+    print(ear_diff)
+
+    is_facing = (
+        nose_eye_offset < nose_eye_threshold and
+        cheek_symmetry < cheek_threshold and
+        ear_diff < ear_high_difference_threshold
+    )
 
     # # Draw landmarks on face image
     # cv2.circle(face_image, (int(right_eye.x * width), int(right_eye.y * height)), 2, (0, 255, 255), -1)
