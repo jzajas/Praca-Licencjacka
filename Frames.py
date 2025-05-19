@@ -68,7 +68,7 @@ class FileFrame(CTkFrame):
         self.status_label.grid(row=2, column=0, columnspan=3, sticky="w", padx=30, pady=(5, 0))
 
     def select_file(self):
-        self.entry.delete(0, END)
+        # self.entry.delete(0, END)
         file = filedialog.askopenfilename(title="Select File",
                                           parent=self,
                                           filetypes=FILETYPES)
@@ -110,7 +110,7 @@ class FolderFrame(CTkFrame):
         self.status_label.grid(row=2, column=0, columnspan=3, sticky="w", padx=30, pady=(5, 0))
 
     def select_folder(self):
-        self.entry.delete(0, END)
+        # self.entry.delete(0, END)
         folder = filedialog.askdirectory(title="Select Folder")
         if folder:
             self.entry.delete(0, END)
@@ -144,11 +144,12 @@ class ResultsFrame(CTkScrollableFrame):
         self.row_number += 1
 
     def add_result_positive(self, name, detector):
-        textbox = CTkTextbox(master=self, width=475, height=40, font=("Arial", 15), wrap="none")
+        textbox = CTkTextbox(master=self, width=475, height=52, font=("Arial", 15), wrap="word")
+        textbox.configure(yscrollcommand=None)
 
-        textbox.insert("end", f"{name}")
-        textbox.insert("end", ", Correct", "correct_tag")
-        textbox.insert("end", f", {detector}")
+        textbox.insert("end", f"{name}\n")
+        textbox.insert("end", "Correct", "correct_tag")
+        textbox.insert("end", f" - {detector}")
 
         textbox.tag_config("correct_tag", foreground="#35c211")
         textbox.configure(state="disabled")
@@ -156,11 +157,12 @@ class ResultsFrame(CTkScrollableFrame):
         self.row_number += 1
 
     def add_result_negative(self, name, detector, reason):
-        textbox = CTkTextbox(master=self, width=475, height=40, font=("Arial", 15), wrap="none")
+        textbox = CTkTextbox(master=self, width=475, height=70, font=("Arial", 15), wrap="word")
+        textbox.configure(yscrollcommand=None)
 
-        textbox.insert("end", f"{name}")
-        textbox.insert("end", ", Incorrect", "incorrect_tag")
-        textbox.insert("end", f", {detector}, {reason}")
+        textbox.insert("end", f"{name}\n")
+        textbox.insert("end", "Incorrect", "incorrect_tag")
+        textbox.insert("end", f" - {detector}\n{reason}")
 
         textbox.tag_config("incorrect_tag", foreground="red")
         textbox.configure(state="disabled")
@@ -198,6 +200,9 @@ class DetectorSettingsFrame(CTkFrame):
         self.ear_height_diff_entry = CTkEntry(master=self, width=50, height=20, corner_radius=20, text_color="black",
                                               fg_color="white", placeholder_text_color="black", font=("Arial", 15))
 
+        self.default_button = CTkButton(master=self, width=125, height=30, corner_radius=20, text_color="black",
+                                        text="Restore Default", font=("Arial", 15), command=self.restore_default)
+
         self.nose_position_entry.insert(0, "0.05")
         self.symmetry_entry.insert(0, "0.1")
         self.ear_height_diff_entry.insert(0, "0.03")
@@ -210,6 +215,7 @@ class DetectorSettingsFrame(CTkFrame):
         self.symmetry_entry.grid(row=2, column=1, pady=(5, 5))
         self.ear_height_diff_label.grid(row=3, column=0, pady=(5, 5))
         self.ear_height_diff_entry.grid(row=3, column=1, pady=(5, 5))
+        self.default_button.grid(row=4, column=0, columnspan=2, pady=(20, 5))
 
     def get_selected_detector(self):
         return self.detector_option.get()
@@ -219,3 +225,11 @@ class DetectorSettingsFrame(CTkFrame):
         symmetry = self.symmetry_entry.get()
         ear_high_diff = self.ear_height_diff_entry.get()
         return [nose_position, symmetry, ear_high_diff]
+
+    def restore_default(self):
+        self.nose_position_entry.delete(0, END)
+        self.symmetry_entry.delete(0, END)
+        self.ear_height_diff_entry.delete(0, END)
+        self.nose_position_entry.insert(0, "0.05")
+        self.symmetry_entry.insert(0, "0.1")
+        self.ear_height_diff_entry.insert(0, "0.03")
