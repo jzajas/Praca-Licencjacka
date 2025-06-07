@@ -78,6 +78,7 @@ def is_face_facing_camera(face_image, face_landmarks, options):
 
     # 3. Ear height alignment
     ear_diff = abs(left_ear.y - right_ear.y)
+
     nose_eye_threshold = float(options[0])
     cheek_threshold = float(options[1])
     ear_high_difference_threshold = float(options[2])
