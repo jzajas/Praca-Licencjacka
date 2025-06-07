@@ -215,7 +215,7 @@ class DetectorSettingsFrame(CTkFrame):
         self.symmetry_entry.grid(row=2, column=1, pady=(5, 5))
         self.ear_height_diff_label.grid(row=3, column=0, pady=(5, 5))
         self.ear_height_diff_entry.grid(row=3, column=1, pady=(5, 5))
-        self.default_button.grid(row=4, column=0, columnspan=2, pady=(20, 5))
+        self.default_button.grid(row=4, column=0, columnspan=2, pady=(20 , 5))
 
     def get_selected_detector(self):
         return self.detector_option.get()
