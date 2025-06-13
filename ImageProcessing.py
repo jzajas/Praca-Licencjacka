@@ -55,11 +55,10 @@ def draw_mesh(face_image, options):
         results = face_mesh.process(face_image)
         if results:
             face_landmarks = results.multi_face_landmarks[0]
-            return is_face_facing_camera(face_image, face_landmarks, options)
+            return is_face_facing_camera(face_landmarks, options)
 
 
-def is_face_facing_camera(face_image, face_landmarks, options):
-    height, width, _ = face_image.shape
+def is_face_facing_camera(face_landmarks, options):
 
     nose = face_landmarks.landmark[NOSE]
     right_cheek = face_landmarks.landmark[RIGHT_CHEEK]
@@ -69,14 +68,11 @@ def is_face_facing_camera(face_image, face_landmarks, options):
     right_eye = face_landmarks.landmark[RIGHT_EYE]
     left_eye = face_landmarks.landmark[LEFT_EYE]
 
-    # 1. Nose between eyes (symmetry around nose)
     eye_center = (left_eye.x + right_eye.x) / 2
     nose_eye_offset = abs(nose.x - eye_center)
 
-    # 2. nose symmetry
     cheek_symmetry = abs((right_cheek.x - nose.x) - (nose.x - left_cheek.x))
 
-    # 3. Ear height alignment
     ear_diff = abs(left_ear.y - right_ear.y)
 
     nose_eye_threshold = float(options[0])
