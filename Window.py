@@ -26,6 +26,8 @@ class App(CTk):
         self.grid_rowconfigure(0, weight=0, minsize=135)
         self.grid_columnconfigure(0, weight=0, minsize=450)
 
+        self.configure(fg_color="#555555")
+
         self.url_frame = UrlFrame(master=self)
         self.file_frame = FileFrame(master=self)
         self.folder_frame = FolderFrame(master=self)

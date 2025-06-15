@@ -10,6 +10,8 @@ class UrlFrame(CTkFrame):
     def __init__(self, master, **kwargs):
         super().__init__(master, **kwargs)
 
+        self.configure(fg_color="#555555")
+
         self.label = CTkLabel(master=self, text="URL", width=100, height=30, anchor="e",
                               text_color="#0080ff", fg_color="transparent", font=("Arial", 20), padx=30, pady=5)
         self.entry = CTkEntry(master=self, width=400, height=40, corner_radius=20, text_color="black",
@@ -47,6 +49,9 @@ class UrlFrame(CTkFrame):
 class FileFrame(CTkFrame):
     def __init__(self, master, **kwargs):
         super().__init__(master, **kwargs)
+
+        self.configure(fg_color="#555555")
+
 
         self.label = CTkLabel(master=self, text="File Path", width=100, height=30, anchor="e", text_color="#0080ff",
                               fg_color="transparent", font=("Arial", 20), padx=30, pady=5)
@@ -89,6 +94,9 @@ class FileFrame(CTkFrame):
 class FolderFrame(CTkFrame):
     def __init__(self, master, **kwargs):
         super().__init__(master, **kwargs)
+
+        self.configure(fg_color="#555555")
+
 
         self.label = CTkLabel(master=self, text="Folder Path", width=100, height=30, anchor="e", text_color="#0080ff",
                               fg_color="transparent", font=("Arial", 20), padx=30, pady=5)
