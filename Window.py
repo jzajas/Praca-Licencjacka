@@ -22,7 +22,7 @@ class App(CTk):
     def __init__(self):
         super().__init__()
         self.geometry("1550x550")
-        self.title("Face detection app ")
+        self.title("Aplikacja do automatycznej detekcji twarzy i rozpoznania jej pozycji")
         self.grid_rowconfigure(0, weight=0, minsize=135)
         self.grid_columnconfigure(0, weight=0, minsize=450)
 
@@ -34,9 +34,9 @@ class App(CTk):
         self.results_frame = ResultsFrame(master=self, width=475)
         self.settings_frame = DetectorSettingsFrame(master=self, fg_color="transparent")
 
-        self.process_button = CTkButton(master=self, width=150, height=45, corner_radius=20, text_color="black",
+        self.process_button = CTkButton(master=self, width=150, height=45, corner_radius=20, text_color="white",
                                         font=("Arial", 15), text="Process input", command=self.start_processing)
-        self.clear_button = CTkButton(master=self, width=100, height=30, corner_radius=20, text_color="black",
+        self.clear_button = CTkButton(master=self, width=100, height=30, corner_radius=20, text_color="white",
                                       font=("Arial", 15), text="Clear all results", command=self.clear_inputs)
 
         self.url_frame.grid(row=0, column=0, columnspan=2, padx=20, pady=30, sticky="nsew")
